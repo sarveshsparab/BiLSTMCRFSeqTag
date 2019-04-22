@@ -1,0 +1,120 @@
+Using config: {'_model_dir': '../results/checkpoint', '_tf_random_seed': None, '_save_summary_steps': 100, '_save_checkpoints_steps': None, '_save_checkpoints_secs': 120, '_session_config': allow_soft_placement: true
+graph_options {
+  rewrite_options {
+    meta_optimizer_iterations: ONE
+  }
+}
+, '_keep_checkpoint_max': 5, '_keep_checkpoint_every_n_hours': 10000, '_log_step_count_steps': 100, '_train_distribute': None, '_device_fn': None, '_protocol': None, '_eval_distribute': None, '_experimental_distribute': None, '_service': None, '_cluster_spec': <tensorflow.python.training.server_lib.ClusterSpec object at 0x00000159BD383DD8>, '_task_type': 'worker', '_task_id': 0, '_global_id_in_cluster': 0, '_master': '', '_evaluation_master': '', '_is_chief': True, '_num_ps_replicas': 0, '_num_worker_replicas': 1}
+Not using Distribute Coordinator.
+Running training and evaluation locally (non-distributed).
+Start train and evaluate loop. The evaluate will happen after every checkpoint. Checkpoint frequency is determined based on RunConfig arguments: save_checkpoints_steps None or save_checkpoints_secs 120.
+From C:\Users\sarve\CSCI_548_BiLSTM_CRF_Seq_Tagging\lib\site-packages\tensorflow\python\framework\op_def_library.py:263: colocate_with (from tensorflow.python.framework.ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Colocations handled automatically by placer.
+From C:\Users\sarve\CSCI_548_BiLSTM_CRF_Seq_Tagging\lib\site-packages\tensorflow\python\data\ops\dataset_ops.py:429: py_func (from tensorflow.python.ops.script_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+tf.py_func is deprecated in TF V2. Instead, use
+    tf.py_function, which takes a python function which manipulates tf eager
+    tensors instead of numpy arrays. It's easy to convert a tf eager tensor to
+    an ndarray (just call tensor.numpy()) but having access to eager tensors
+    means `tf.py_function`s can use accelerators such as GPUs as well as
+    being differentiable using a gradient tape.
+    
+Calling model_fn.
+From C:\Users\sarve\PycharmProjects\CSCI_548_BiLSTM_CRF_Seq_Tagging\model\BiLSTMCRFSeqTag.py:462: dropout (from tensorflow.python.layers.core) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use keras.layers.dropout instead.
+From C:\Users\sarve\CSCI_548_BiLSTM_CRF_Seq_Tagging\lib\site-packages\tensorflow\python\keras\layers\core.py:143: calling dropout (from tensorflow.python.ops.nn_ops) with keep_prob is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use `rate` instead of `keep_prob`. Rate should be set to `rate = 1 - keep_prob`.
+From C:\Users\sarve\PycharmProjects\CSCI_548_BiLSTM_CRF_Seq_Tagging\model\masked_conv.py:38: to_float (from tensorflow.python.ops.math_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use tf.cast instead.
+From C:\Users\sarve\PycharmProjects\CSCI_548_BiLSTM_CRF_Seq_Tagging\model\masked_conv.py:46: conv1d (from tensorflow.python.layers.convolutional) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use keras.layers.conv1d instead.
+From C:\Users\sarve\CSCI_548_BiLSTM_CRF_Seq_Tagging\lib\site-packages\tensorflow\contrib\rnn\python\ops\lstm_ops.py:696: to_int64 (from tensorflow.python.ops.math_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use tf.cast instead.
+From C:\Users\sarve\PycharmProjects\CSCI_548_BiLSTM_CRF_Seq_Tagging\model\BiLSTMCRFSeqTag.py:492: dense (from tensorflow.python.layers.core) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use keras.layers.dense instead.
+From C:\Users\sarve\CSCI_548_BiLSTM_CRF_Seq_Tagging\lib\site-packages\tensorflow\contrib\crf\python\ops\crf.py:567: dynamic_rnn (from tensorflow.python.ops.rnn) is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use `keras.layers.RNN(cell)`, which is equivalent to this API
+From C:\Users\sarve\CSCI_548_BiLSTM_CRF_Seq_Tagging\lib\site-packages\tensorflow\python\ops\rnn.py:626: to_int32 (from tensorflow.python.ops.math_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use tf.cast instead.
+From C:\Users\sarve\CSCI_548_BiLSTM_CRF_Seq_Tagging\lib\site-packages\tensorflow\python\ops\math_grad.py:102: div (from tensorflow.python.ops.math_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Deprecated in favor of operator or tf.math.divide.
+Done calling model_fn.
+Create CheckpointSaverHook.
+Graph was finalized.
+From C:\Users\sarve\CSCI_548_BiLSTM_CRF_Seq_Tagging\lib\site-packages\tensorflow\python\training\saver.py:1266: checkpoint_exists (from tensorflow.python.training.checkpoint_management) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use standard file APIs to check for files with this prefix.
+Restoring parameters from ../results/checkpoint\model.ckpt-50
+From C:\Users\sarve\CSCI_548_BiLSTM_CRF_Seq_Tagging\lib\site-packages\tensorflow\python\training\saver.py:1070: get_checkpoint_mtimes (from tensorflow.python.training.checkpoint_management) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use standard file utilities to get mtimes.
+Running local_init_op.
+Done running local_init_op.
+Saving checkpoints for 50 into ../results/checkpoint\model.ckpt.
+From C:\Users\sarve\CSCI_548_BiLSTM_CRF_Seq_Tagging\lib\site-packages\tensorflow\python\summary\summary_iterator.py:68: tf_record_iterator (from tensorflow.python.lib.io.tf_record) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use eager execution and: 
+`tf.data.TFRecordDataset(path)`
+loss = 0.5320593, step = 51
+Saving checkpoints for 60 into ../results/checkpoint\model.ckpt.
+From C:\Users\sarve\CSCI_548_BiLSTM_CRF_Seq_Tagging\lib\site-packages\tensorflow\python\training\saver.py:966: remove_checkpoint (from tensorflow.python.training.checkpoint_management) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use standard file APIs to delete files with this prefix.
+Calling model_fn.
+Done calling model_fn.
+Starting evaluation at 2019-04-22T08:43:48Z
+Graph was finalized.
+Restoring parameters from ../results/checkpoint\model.ckpt-60
+Running local_init_op.
+Done running local_init_op.
+Finished evaluation at 2019-04-22-08:43:49
+Saving dict for global step 60: acc = 1.0, f1 = 1.0, global_step = 60, loss = 0.2099154, precision = 1.0, recall = 1.0
+Saving 'checkpoint_path' summary for global step 60: ../results/checkpoint\model.ckpt-60
+Loss for final step: 0.36856365.
+Using default config.
+Using config: {'_model_dir': '../results/checkpoint', '_tf_random_seed': None, '_save_summary_steps': 100, '_save_checkpoints_steps': None, '_save_checkpoints_secs': 600, '_session_config': allow_soft_placement: true
+graph_options {
+  rewrite_options {
+    meta_optimizer_iterations: ONE
+  }
+}
+, '_keep_checkpoint_max': 5, '_keep_checkpoint_every_n_hours': 10000, '_log_step_count_steps': 100, '_train_distribute': None, '_device_fn': None, '_protocol': None, '_eval_distribute': None, '_experimental_distribute': None, '_service': None, '_cluster_spec': <tensorflow.python.training.server_lib.ClusterSpec object at 0x00000159C1DEA198>, '_task_type': 'worker', '_task_id': 0, '_global_id_in_cluster': 0, '_master': '', '_evaluation_master': '', '_is_chief': True, '_num_ps_replicas': 0, '_num_worker_replicas': 1}
+Calling model_fn.
+Done calling model_fn.
+From C:\Users\sarve\CSCI_548_BiLSTM_CRF_Seq_Tagging\lib\site-packages\tensorflow\python\saved_model\signature_def_utils_impl.py:205: build_tensor_info (from tensorflow.python.saved_model.utils_impl) is deprecated and will be removed in a future version.
+Instructions for updating:
+This function will only be available through the v1 compatibility library as tf.compat.v1.saved_model.utils.build_tensor_info or tf.compat.v1.saved_model.build_tensor_info.
+Signatures INCLUDED in export for Classify: None
+Signatures INCLUDED in export for Regress: None
+Signatures INCLUDED in export for Predict: ['serving_default']
+Signatures INCLUDED in export for Train: None
+Signatures INCLUDED in export for Eval: None
+Restoring parameters from ../results/checkpoint\model.ckpt-60
+Assets added to graph.
+Assets written to: ../results/saved_model\temp-b'1555922629'\assets
+SavedModel written to: ../results/saved_model\temp-b'1555922629'\saved_model.pb
+Using default config.
+Using config: {'_model_dir': '../results/checkpoint', '_tf_random_seed': None, '_save_summary_steps': 100, '_save_checkpoints_steps': None, '_save_checkpoints_secs': 600, '_session_config': allow_soft_placement: true
+graph_options {
+  rewrite_options {
+    meta_optimizer_iterations: ONE
+  }
+}
+, '_keep_checkpoint_max': 5, '_keep_checkpoint_every_n_hours': 10000, '_log_step_count_steps': 100, '_train_distribute': None, '_device_fn': None, '_protocol': None, '_eval_distribute': None, '_experimental_distribute': None, '_service': None, '_cluster_spec': <tensorflow.python.training.server_lib.ClusterSpec object at 0x00000159C4F8D470>, '_task_type': 'worker', '_task_id': 0, '_global_id_in_cluster': 0, '_master': '', '_evaluation_master': '', '_is_chief': True, '_num_ps_replicas': 0, '_num_worker_replicas': 1}
+Input graph does not use tf.data.Dataset or contain a QueueRunner. That means predict yields forever. This is probably a mistake.
+Calling model_fn.
+Done calling model_fn.
+Graph was finalized.
+Restoring parameters from ../results/checkpoint\model.ckpt-60
+Running local_init_op.
+Done running local_init_op.
