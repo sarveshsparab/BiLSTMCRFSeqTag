@@ -52,23 +52,7 @@ class BiLSTMCRFSeqTag(NER):
         self.log.debug(args)
         self.log.debug(kwargs)
 
-        tag_contents = list()
-        for i, line in enumerate(data['test']):
-            # Check if end of sentence or not
-            if len(line) == 0:
-                continue
-            else:
-                tag_contents.append(line[kwargs.get("tagPosition", 3)])
-
-        self.log.debug("Returning ground truths for the test input file :")
-        self.log.debug(tag_contents)
-
-        if kwargs.get("writeGroundTruthToFile", True):
-            with Path(kwargs.get("groundTruthPath", '../results/groundTruths.txt')).open(mode='w') as f:
-                for x in range(len(tag_contents)):
-                    f.write(tag_contents[x] + "\n")
-
-        return tag_contents
+        pass
 
     def read_dataset(self, file_dict, dataset_name, *args, **kwargs):
         self.log.debug("Invoked read_dataset method")
@@ -85,11 +69,6 @@ class BiLSTMCRFSeqTag(NER):
                 file = file_dict[split]
                 with open(file, mode='r', encoding='utf-8') as f:
                     raw_data = f.read().splitlines()
-                for i, line in enumerate(raw_data):
-                    if len(line.strip()) > 0:
-                        raw_data[i] = line.strip().split()
-                    else:
-                        raw_data[i] = list(line)
                 data[split] = raw_data
         except KeyError:
             raise ValueError("Invalid file_dict. Standard keys (train, test, dev)")
@@ -108,7 +87,7 @@ class BiLSTMCRFSeqTag(NER):
         self.log.debug(args)
         self.log.debug(kwargs)
 
-        #self.data_converter(data, *args, **kwargs)
+        self.data_converter(data, *args, **kwargs)
 
         params = {
             'dim_chars': kwargs.get("dimChars", 100),
@@ -161,16 +140,10 @@ class BiLSTMCRFSeqTag(NER):
         self.log.debug(kwargs)
 
         pred_tuple = list()
-        ret_pred_tuple = list()
         raw_data = {}
 
         with open(data, mode='r', encoding='utf-8') as f:
             file_data = f.read().splitlines()
-        for i, line in enumerate(file_data):
-            if len(line.strip()) > 0:
-                file_data[i] = line.strip().split()
-            else:
-                file_data[i] = list(line)
 
         raw_data['test'] = file_data
 
@@ -189,16 +162,14 @@ class BiLSTMCRFSeqTag(NER):
                 self.pretty_print(data_val_string, pred['tags'])
 
                 for x in range(min(len(data_val_list), len(true_tag_val_list), len(pred['tags']))):
-                    pred_tuple.append([None, None, data_val_list[x], true_tag_val_list[x], pred['tags'][x].decode()])
-                    ret_pred_tuple.append([None, None, data_val_list[x], pred['tags'][x].decode()])
+                    pred_tuple.append([data_val_list[x], true_tag_val_list[x], pred['tags'][x].decode()])
 
                 break
         else:
             pred = loadedModel(self.parse_fn_load_model(data_val_string))
 
             for x in range(min(len(data_val_list), len(true_tag_val_list), len(pred['tags']))):
-                pred_tuple.append([None, None, data_val_list[x], true_tag_val_list[x], pred['tags'][x].decode()])
-                ret_pred_tuple.append([None, None, data_val_list[x], pred['tags'][x].decode()])
+                pred_tuple.append([data_val_list[x], true_tag_val_list[x], pred['tags'][x].decode()])
 
         self.log.debug("Returning predictions :")
         self.log.debug(pred_tuple)
@@ -206,9 +177,9 @@ class BiLSTMCRFSeqTag(NER):
         if kwargs.get("writePredsToFile", True):
             with Path(kwargs.get("predsPath", '../results/predictions.txt')).open(mode='w') as f:
                 for x in range(len(pred_tuple)):
-                    f.write(pred_tuple[x][2] + " " + pred_tuple[x][3] + " " + pred_tuple[x][4] + "\n")
+                    f.write(pred_tuple[x][0] + " " + pred_tuple[x][1] + " " + pred_tuple[x][2] + "\n")
 
-        return ret_pred_tuple
+        return pred_tuple
 
     def evaluate(self, predictions, groundTruths, *args, **kwargs):
         self.log.debug("Invoked evaluate method")
@@ -322,14 +293,13 @@ class BiLSTMCRFSeqTag(NER):
             tag_contents = ''
             for i, val in enumerate(data[file_type]):
                 # Check if end of sentence or not
-                if len(val) == 0:
-                    words_contents.strip()
-                    tag_contents.strip()
+                if val == kwargs.get("sentenceDelimiter", ''):
                     words_contents += '\n'
                     tag_contents += '\n'
                 else:
-                    words_contents += val[kwargs.get("wordPosition", 0)] + " "
-                    tag_contents += val[kwargs.get("tagPosition", 3)] + " "
+                    split_tokens = val.split(kwargs.get("fileDelimiter", " "))
+                    words_contents += split_tokens[kwargs.get("wordPosition", 0)] + " "
+                    tag_contents += split_tokens[kwargs.get("tagPosition", 3)] + " "
 
             if kwargs.get("writeInputToFile", True):
                 with Path(words(file_type)).open(mode='w') as f:
