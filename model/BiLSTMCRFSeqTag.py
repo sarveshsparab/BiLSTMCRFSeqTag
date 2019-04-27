@@ -1,3 +1,11 @@
+"""
+@author: Sarvesh Parab
+@course: USC CSCI 571
+Term : Spring 2019
+Email : sparab@usc.edu
+Website : http://www.sarveshparab.com
+"""
+
 import functools
 import sys
 import logging
@@ -19,6 +27,11 @@ from model.eval_metrics import precision, recall, f1
 
 class BiLSTMCRFSeqTag(NER):
 
+    """
+    Setting up the logger for both the application logs and the tensorflow logs
+    Application Log path : ../logs/app-{%H_%M_%S}.log
+    Tensorflow Log path : ../logs/tf-{%H_%M_%S}.log
+    """
     # Setting up the logger
     log = logging.getLogger('root')
     logdatetime = datetime.now().strftime("%H_%M_%S")
@@ -29,22 +42,51 @@ class BiLSTMCRFSeqTag(NER):
     fileHandler = logging.FileHandler('../logs/app-'+logdatetime+'.log')
     fileHandler.setFormatter(logFormatter)
     rootLogger.addHandler(fileHandler)
-    consoleHandler = logging.StreamHandler()
-    consoleHandler.setFormatter(logFormatter)
-    rootLogger.addHandler(consoleHandler)
+    # consoleHandler = logging.StreamHandler()
+    # consoleHandler.setFormatter(logFormatter)
+    # rootLogger.addHandler(consoleHandler)
 
     # Logging for tensorflow
     Path('../results').mkdir(exist_ok=True)
     tf.logging.set_verbosity(logging.INFO)
     handlers = [
-        logging.FileHandler('../logs/tf-'+logdatetime+'.log'),
-        logging.StreamHandler(sys.stdout)
+        logging.FileHandler('../logs/tf-'+logdatetime+'.log')
     ]
     logging.getLogger('tensorflow').handlers = handlers
 
+    """
+    Default blank constructor
+    """
     def __init__(self):
         pass
 
+    """
+    Providing definition to the abstract DITK parent class method - convert_ground_truth
+    
+    # Description: 
+        Converts test data into common format for evaluation [i.e. same format as predict()]
+        This added step/layer of abstraction is required due to the refactoring of read_dataset_train()
+        and read_dataset_test() back to the single method of read_dataset() along with the requirement on
+        the format of the output of predict() and therefore the input format requirement of evaluate(). Since
+        individuals will implement their own format of data from read_dataset(), this is the layer that
+        will convert to proper format for evaluate().
+    # Arguments:
+        data        - data in proper format for train or test. [i.e. format of output from read_dataset]
+        *args       - Not Applicable
+        **kwargs    - wordPosition [default : 0] - Column number with the mention word
+                    - tagPosition [default : 3] - Column number with the entity tag
+                    - writeGroundTruthToFile [default : True] - Flag to enable writing ground truths to a file
+                    - groundTruthPath [default : ../results/groundTruths.txt] - Location to save the ground truths file
+    # Return:
+        [tuple,...], i.e. list of tuples. [SAME format as output of predict()]
+            Each tuple is (start index, span, mention text, mention type)
+            Where:
+             - start index: int, the index of the first character of the mention span. None if not applicable.
+             - span: int, the length of the mention. None if not applicable.
+             - mention text: str, the actual text that was identified as a named entity. Required.
+             - mention type: str, the entity/mention type. None if not applicable.
+    
+    """
     def convert_ground_truth(self, data, *args, **kwargs):
         self.log.debug("Invoked convert_ground_truth method")
         self.log.debug("With parameters : ")
@@ -68,6 +110,9 @@ class BiLSTMCRFSeqTag(NER):
             for split in standard_split:
                 file = file_dict[split]
                 with open(file, mode='r', encoding='utf-8') as f:
+                    if kwargs.get("fileHasHeaders", True):
+                        next(f)
+                        next(f)
                     raw_data = f.read().splitlines()
                 data[split] = raw_data
         except KeyError:
@@ -143,6 +188,9 @@ class BiLSTMCRFSeqTag(NER):
         raw_data = {}
 
         with open(data, mode='r', encoding='utf-8') as f:
+            if kwargs.get("fileHasHeaders", True):
+                next(f)
+                next(f)
             file_data = f.read().splitlines()
 
         raw_data['test'] = file_data
@@ -176,6 +224,7 @@ class BiLSTMCRFSeqTag(NER):
 
         if kwargs.get("writePredsToFile", True):
             with Path(kwargs.get("predsPath", '../results/predictions.txt')).open(mode='w') as f:
+                f.write("WORD TRUE_LABEL PRED_LABEL\n\n")
                 for x in range(len(pred_tuple)):
                     f.write(pred_tuple[x][0] + " " + pred_tuple[x][1] + " " + pred_tuple[x][2] + "\n")
 
@@ -189,15 +238,20 @@ class BiLSTMCRFSeqTag(NER):
         self.log.debug(args)
         self.log.debug(kwargs)
 
-        with open(kwargs.get("predsPath", '../results/predictions.txt'), mode='r', encoding='utf-8') as f:
-            raw_preds = f.read().splitlines()
-
         true_vals = list()
         pred_vals = list()
 
-        for x in range(len(raw_preds)):
-            true_vals.append(raw_preds[x].split(" ")[1])
-            pred_vals.append(raw_preds[x].split(" ")[2])
+        if predictions is None and groundTruths is None:
+            with open(kwargs.get("predsPath", '../results/predictions.txt'), mode='r', encoding='utf-8') as f:
+                raw_preds = f.read().splitlines()
+
+            for x in range(len(raw_preds)):
+                true_vals.append(raw_preds[x].split(" ")[1])
+                pred_vals.append(raw_preds[x].split(" ")[2])
+
+        else:
+            true_vals = groundTruths
+            pred_vals = predictions
 
         eval_metrics = evaluate(true_vals, pred_vals, False)
 
@@ -206,10 +260,10 @@ class BiLSTMCRFSeqTag(NER):
 
         return eval_metrics
 
-    def save_model(self, data, *args, **kwargs):
+    def save_model(self, file=None, *args, **kwargs):
         self.log.debug("Invoked save_model method")
         self.log.debug("With parameters : ")
-        self.log.debug(data)
+        self.log.debug(kwargs.get("modelPath", "../results/saved_model"))
         self.log.debug(args)
         self.log.debug(kwargs)
 
@@ -226,7 +280,7 @@ class BiLSTMCRFSeqTag(NER):
 
         self.log.debug("Model saved at location : %s", kwargs.get("modelPath", "../results/saved_model"))
 
-    def load_model(self, **kwargs):
+    def load_model(self, file=None, **kwargs):
         self.log.debug("Invoked load_model method")
         self.log.debug("With parameters : ")
         self.log.debug(kwargs)
@@ -584,3 +638,18 @@ class BiLSTMCRFSeqTag(NER):
 
         return {'words': [words], 'nwords': [len(words)],
                 'chars': [chars], 'nchars': [lengths]}
+
+    def main(self, input_file, **kwargs):
+
+        file_dict = dict()
+        file_dict['train'] = input_file
+        file_dict['test'] = input_file
+        file_dict['dev'] = input_file
+
+        data = self.read_dataset(file_dict, "CoNLL2003", None, **kwargs)
+        groundTruth = self.convert_ground_truth(data, None, **kwargs)
+        self.train(data, None, **kwargs)
+        predictions = self.predict(input_file, None, writeInputToFile=False, **kwargs)
+        self.evaluate([col[3] for col in predictions], [col[3] for col in groundTruth], None, **kwargs)
+
+        return "../results/predictions.txt"
