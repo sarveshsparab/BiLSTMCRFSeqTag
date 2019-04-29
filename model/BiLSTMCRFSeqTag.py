@@ -7,7 +7,6 @@ Website : http://www.sarveshparab.com
 """
 
 import functools
-import sys
 import logging
 import json
 from datetime import datetime
@@ -125,6 +124,38 @@ class BiLSTMCRFSeqTag(NER):
 
         return data
 
+    """
+    Providing definition to the abstract DITK parent class method - train
+    
+    # Description: 
+        Trains he model on the parsed data
+        Calls the internal save_model method to save the trained model for predictions
+    # Arguments:
+        data        - Parsed input data in the format returned by read_dataset method
+        *args       - Not Applicable
+        **kwargs    - dimChars [default : 100] - Model character level dimensionality
+                    - dim [default : 300] - Model dimensionality
+                    - dropout [default : 0.5] - Model dropout rate
+                    - epochs [default : 25] - Number of epoch to run for training
+                    - batchSize [default : 20] - Training batch sizes
+                    - filterNum [default : 50] - Filter area size
+                    - lstmSize [default : 100] - State size of the Bi-LSTM layers
+                    - vocabWordsPath [default : ../dev/vocab.words.txt] - Location of the parsed words set
+                    - vocabCharsPath [default : ../dev/vocab.chars.txt] - Location of the parsed characters set
+                    - vocabTagsPath [default : ../dev/vocab.tags.txt] - Location of the parsed tags set
+                    - gloveCompressedNPZPath [default : ../dev/glove.npz] - Location of the extracted Glove embeddings from input data in compressed form
+                    - paramsPath [default : ../results/params.json] - Location where model parameters get saved
+                    - inputFileWordsPath [default : ../dev/{}.words.txt] - Location of the extracted words from the input files
+                    - inputFileTagsPath [default : ../dev/{}.tags.txt] - Location of the extracted tags from the input files
+                    - checkpointPath [default : ../results/checkpoint] - Location to save intermediate checkpoints
+                    - modelPath [default : ../results/saved_model] - Location to save the best model
+                    - gloveEmbedPath [default : ../resources/glove/glove.840B.300d.txt] - Location fo the glove embedding file
+                    - wordPosition [default : 0] - Column number with the mention word
+                    - tagPosition [default : 3] - Column number with the entity tag
+                    - writeInputToFile [default : True] - Flag to toggle behaviour of the internal data_converter method
+    # Return:
+        N/A
+    """
     def train(self, data, *args, **kwargs):
         self.log.debug("Invoked train method")
         self.log.debug("With parameters : ")
@@ -142,7 +173,7 @@ class BiLSTMCRFSeqTag(NER):
             'epochs': kwargs.get("epochs", 25),
             'batch_size': kwargs.get("batchSize", 20),
             'buffer': 15000,
-            'filters': 50,
+            'filters': kwargs.get("filterNum", 50),
             'kernel_size': 3,
             'lstm_size': kwargs.get("lstmSize", 100),
             'words': str(kwargs.get("vocabWordsPath", '../dev/vocab.words.txt')),
@@ -177,6 +208,38 @@ class BiLSTMCRFSeqTag(NER):
 
         self.save_model(None, None, **kwargs)
 
+    """
+    Providing definition to the abstract DITK parent class method - predict
+
+    # Description:
+        Parses and converts the input sentence provided in a file for predicting the NER tags
+        Calls the internal load_model method to load the trained model for predictions
+    # Arguments:
+        data        - The file location with the input text in the common format for prediction
+        *args       - Not Applicable
+        **kwargs    - fileHasHeaders  [default : True] - Flag to check if input file has headers
+                    - loadModelFrom [default : checkpoint] - Flag to decide to choose to load model from 'checkpoint' or 'saved_model'
+                    - vocabWordsPath [default : ../dev/vocab.words.txt] - Location of the parsed words set
+                    - vocabCharsPath [default : ../dev/vocab.chars.txt] - Location of the parsed characters set
+                    - vocabTagsPath [default : ../dev/vocab.tags.txt] - Location of the parsed tags set
+                    - gloveCompressedNPZPath [default : ../dev/glove.npz] - Location of the extracted Glove embeddings from input data in compressed form
+                    - paramsPath [default : ../results/params.json] - Location where model parameters get saved
+                    - checkpointPath [default : ../results/checkpoint] - Location to save intermediate checkpoints
+                    - modelPath [default : ../results/saved_model] - Location to save the best model
+                    - writePredsToFile [default : True] - Flag to enable writing predictions to file
+                    - predsPath [default : ../results/predictions.txt] - Location where to write predictions into
+    # Return:
+        [tuple,...], i.e. list of tuples.
+            Each tuple is (start index, span, mention text, mention type)
+            Where:
+             - start index: int, the index of the first character of the mention span. None if not applicable.
+             - span: int, the length of the mention. None if not applicable.
+             - mention text: str, the actual text that was identified as a named entity. Required.
+             - mention type: str, the entity/mention type. None if not applicable.
+
+             NOTE: len(predictions) should equal len(data) AND the ordering should not change [important for
+                 evaluation. See note in evaluate() about parallel arrays.]
+    """
     def predict(self, data, *args, **kwargs):
         self.log.debug("Invoked predict method")
         self.log.debug("With parameters : ")
