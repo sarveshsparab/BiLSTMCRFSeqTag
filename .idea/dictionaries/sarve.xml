@@ -2,6 +2,7 @@
   <dictionary name="sarve">
     <words>
       <w>dataset</w>
+      <w>ditk</w>
       <w>inpf</w>
       <w>lineno</w>
       <w>logdatetime</w>
@@ -13,6 +14,8 @@
       <w>pred</w>
       <w>preds</w>
       <w>tensorflow</w>
+      <w>tokenized</w>
+      <w>vals</w>
     </words>
   </dictionary>
 </component>
