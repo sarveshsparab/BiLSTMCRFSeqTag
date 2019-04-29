@@ -159,5 +159,7 @@ This repo is based on the following paper and Github implementation:
       ```
 
 ## To Test
+Custom test-case added to ensure proper working of the code
 
-To use the input file, output file and test python file in folder [test](./testcode) to test 
+To use the input file, output file and test python file in folder [test](./test) to test
+![](./test/Test.JPG) 
