@@ -93,9 +93,56 @@ class BiLSTMCRFSeqTag(NER):
         self.log.debug(args)
         self.log.debug(kwargs)
 
-        pass
+        tag_contents = list()
+        for i, line in enumerate(data['test']):
+            # Check if end of sentence or not
+            if len(line) == 0:
+                continue
+            else:
+                tag_contents.append([None, None, line[kwargs.get("wordPosition", 0)], line[kwargs.get("tagPosition", 3)]])
 
-    def read_dataset(self, file_dict, dataset_name, *args, **kwargs):
+        self.log.debug("Returning ground truths for the test input file :")
+        self.log.debug(tag_contents)
+
+        if kwargs.get("writeGroundTruthToFile", True):
+            with Path(kwargs.get("groundTruthPath", '../results/groundTruths.txt')).open(mode='w') as f:
+                for x in range(len(tag_contents)):
+                    line = ""
+                    if tag_contents[x][0] is None:
+                        line += "-" + " "
+                    else:
+                        line += tag_contents[x][0] + " "
+                    if tag_contents[x][1] is None:
+                        line += "-" + " "
+                    else:
+                        line += tag_contents[x][1] + " "
+                    line += tag_contents[x][2] + " "
+                    line += tag_contents[x][3]
+                    line += "\n"
+                    f.write(line)
+
+        return tag_contents
+
+    """
+    Providing definition to the abstract DITK parent class method - read_dataset
+
+    # Description: 
+        Reads a dataset in preparation for train or test. Returns data in proper format for train or test.
+    # Arguments:
+        file_dict   - A dictionary with these keys:
+                        - train - Location of train dataset file
+                        - test - Location of test dataset file
+                        - dev - Location of dev dataset file
+        dataset_name- Name of the dataset required for calling appropriate utils, converters
+        *args       - Not Applicable
+        **kwargs    - fileHasHeaders [default : True] - Flag to check if input file has headers
+                    - columnDelimiter [default : `space`] - Delimiter in the data input
+    # Return:
+        A dictionary of file_dict keys as keys and values as lists of lines, where in each line is further tokenized
+        on the column delimiter and extracted as a list 
+
+    """
+    def read_dataset(self, file_dict, dataset_name="CoNLL03", *args, **kwargs):
         self.log.debug("Invoked read_dataset method")
         self.log.debug("With parameters : ")
         self.log.debug(file_dict)
@@ -113,6 +160,11 @@ class BiLSTMCRFSeqTag(NER):
                         next(f)
                         next(f)
                     raw_data = f.read().splitlines()
+                for i, line in enumerate(raw_data):
+                    if len(line.strip()) > 0:
+                        raw_data[i] = line.strip().split(kwargs.get("columnDelimiter", " "))
+                    else:
+                        raw_data[i] = list(line)
                 data[split] = raw_data
         except KeyError:
             raise ValueError("Invalid file_dict. Standard keys (train, test, dev)")
@@ -248,6 +300,7 @@ class BiLSTMCRFSeqTag(NER):
         self.log.debug(kwargs)
 
         pred_tuple = list()
+        ret_pred_tuple = list()
         raw_data = {}
 
         with open(data, mode='r', encoding='utf-8') as f:
@@ -255,6 +308,11 @@ class BiLSTMCRFSeqTag(NER):
                 next(f)
                 next(f)
             file_data = f.read().splitlines()
+        for i, line in enumerate(file_data):
+            if len(line.strip()) > 0:
+                file_data[i] = line.strip().split()
+            else:
+                file_data[i] = list(line)
 
         raw_data['test'] = file_data
 
@@ -273,14 +331,16 @@ class BiLSTMCRFSeqTag(NER):
                 self.pretty_print(data_val_string, pred['tags'])
 
                 for x in range(min(len(data_val_list), len(true_tag_val_list), len(pred['tags']))):
-                    pred_tuple.append([data_val_list[x], true_tag_val_list[x], pred['tags'][x].decode()])
+                    pred_tuple.append([None, None, data_val_list[x], true_tag_val_list[x], pred['tags'][x].decode()])
+                    ret_pred_tuple.append([None, None, data_val_list[x], pred['tags'][x].decode()])
 
                 break
         else:
             pred = loadedModel(self.parse_fn_load_model(data_val_string))
 
             for x in range(min(len(data_val_list), len(true_tag_val_list), len(pred['tags']))):
-                pred_tuple.append([data_val_list[x], true_tag_val_list[x], pred['tags'][x].decode()])
+                pred_tuple.append([None, None, data_val_list[x], true_tag_val_list[x], pred['tags'][x].decode()])
+                ret_pred_tuple.append([None, None, data_val_list[x], pred['tags'][x].decode()])
 
         self.log.debug("Returning predictions :")
         self.log.debug(pred_tuple)
@@ -289,10 +349,27 @@ class BiLSTMCRFSeqTag(NER):
             with Path(kwargs.get("predsPath", '../results/predictions.txt')).open(mode='w') as f:
                 f.write("WORD TRUE_LABEL PRED_LABEL\n\n")
                 for x in range(len(pred_tuple)):
-                    f.write(pred_tuple[x][0] + " " + pred_tuple[x][1] + " " + pred_tuple[x][2] + "\n")
+                    f.write(pred_tuple[x][2] + " " + pred_tuple[x][3] + " " + pred_tuple[x][4] + "\n")
 
-        return pred_tuple
+        return ret_pred_tuple
 
+    """
+    Providing definition to the abstract DITK parent class method - evaluate
+
+    # Description:
+        Calculates evaluation metrics on chosen benchmark dataset
+            - Precision
+            - Recall
+            - F1 Score
+    # Arguments:
+        predictions - List of predicted labels
+        groundTruths- List of ground truth labels
+        *args       - Not Applicable
+        **kwargs    - predsPath [default : ../results/predictions.txt] - Location from where to read predictions from
+                    - groundTruthPath [default : ../results/groundTruths.txt] - Location from where to read ground truths from
+    # Return:
+        Tuple with metrics (p,r,f1). Each element is float.
+    """
     def evaluate(self, predictions, groundTruths, *args, **kwargs):
         self.log.debug("Invoked evaluate method")
         self.log.debug("With parameters : ")
@@ -410,13 +487,14 @@ class BiLSTMCRFSeqTag(NER):
             tag_contents = ''
             for i, val in enumerate(data[file_type]):
                 # Check if end of sentence or not
-                if val == kwargs.get("sentenceDelimiter", ''):
+                if len(val) == 0:
+                    words_contents.strip()
+                    tag_contents.strip()
                     words_contents += '\n'
                     tag_contents += '\n'
                 else:
-                    split_tokens = val.split(kwargs.get("fileDelimiter", " "))
-                    words_contents += split_tokens[kwargs.get("wordPosition", 0)] + " "
-                    tag_contents += split_tokens[kwargs.get("tagPosition", 3)] + " "
+                    words_contents += val[kwargs.get("wordPosition", 0)] + " "
+                    tag_contents += val[kwargs.get("tagPosition", 3)] + " "
 
             if kwargs.get("writeInputToFile", True):
                 with Path(words(file_type)).open(mode='w') as f:
