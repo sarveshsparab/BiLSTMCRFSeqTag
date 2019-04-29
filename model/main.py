@@ -29,7 +29,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 
-class BiLSTMCRFSeqTag(NER):
+class BiLSTMCRFSeqTag(Ner):
 
     """
     Setting up the logger for both the application logs and the tensorflow logs
