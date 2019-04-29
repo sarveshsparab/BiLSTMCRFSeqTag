@@ -41,9 +41,9 @@ class BiLSTMCRFSeqTag(NER):
     fileHandler = logging.FileHandler('../logs/app-'+logdatetime+'.log')
     fileHandler.setFormatter(logFormatter)
     rootLogger.addHandler(fileHandler)
-    # consoleHandler = logging.StreamHandler()
-    # consoleHandler.setFormatter(logFormatter)
-    # rootLogger.addHandler(consoleHandler)
+    consoleHandler = logging.StreamHandler()
+    consoleHandler.setFormatter(logFormatter)
+    rootLogger.addHandler(consoleHandler)
 
     # Logging for tensorflow
     Path('../results').mkdir(exist_ok=True)
@@ -383,6 +383,8 @@ class BiLSTMCRFSeqTag(NER):
 
         if predictions is None and groundTruths is None:
             with open(kwargs.get("predsPath", '../results/predictions.txt'), mode='r', encoding='utf-8') as f:
+                next(f)
+                next(f)
                 raw_preds = f.read().splitlines()
 
             for x in range(len(raw_preds)):
