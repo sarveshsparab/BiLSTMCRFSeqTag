@@ -21,7 +21,7 @@ from tensorflow.contrib import predictor
 
 from conll_eval_metrics import evaluate
 from model.masked_conv import masked_conv1d_and_max
-from model.ner import NER
+from model.ner import Ner
 
 from model.eval_metrics import precision, recall, f1
 
