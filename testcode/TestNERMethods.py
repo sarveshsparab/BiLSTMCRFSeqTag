@@ -1,6 +1,7 @@
 import unittest
 import pandas as pd
-from model.BiLSTMCRFSeqTag import BiLSTMCRFSeqTag
+
+from model.main import BiLSTMCRFSeqTag
 
 
 class TestNERMethods(unittest.TestCase):

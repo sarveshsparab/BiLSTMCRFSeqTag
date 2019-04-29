@@ -1,7 +1,6 @@
 import subprocess
 
-from model.BiLSTMCRFSeqTag import BiLSTMCRFSeqTag
-
+from model.main import BiLSTMCRFSeqTag
 from util.ditk_convertor_util import convert_data_to_ditk
 
 blcst = BiLSTMCRFSeqTag()

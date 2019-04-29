@@ -9,6 +9,8 @@ Website : http://www.sarveshparab.com
 import functools
 import logging
 import json
+import os
+import sys
 from datetime import datetime
 from pathlib import Path
 from collections import Counter
@@ -22,6 +24,9 @@ from model.masked_conv import masked_conv1d_and_max
 from model.ner import NER
 
 from model.eval_metrics import precision, recall, f1
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 
 class BiLSTMCRFSeqTag(NER):
