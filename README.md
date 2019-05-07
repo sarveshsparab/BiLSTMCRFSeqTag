@@ -166,5 +166,7 @@ To use the input file, output file and test python file in folder [tests](./test
 
 ## Info & Acknowledgement
 This code is modelled based on another [implementation](https://github.com/guillaumegenthial/tf_ner/tree/master/models/lstm_crf) of the research paper.
+
 This is repository is part of the [DITK](https://github.com/data-integration-toolkit/ditk) project as per the [USC CSCI 548, Spring '19](https://classes.usc.edu/term-20191/course/csci-548/) graduate course.
+
 Please email your questions or comments to [Sarvesh Parab](http://www.sarveshparab.com/).
